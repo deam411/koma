@@ -1,0 +1,761 @@
+/* ========================================
+   MangaReader - Design System
+   ======================================== */
+
+:root {
+  /* Colors */
+  --bg-primary: #0d0b1a;
+  --bg-secondary: #151228;
+  --bg-card: #1c1836;
+  --bg-card-hover: #241f45;
+  --bg-overlay: rgba(13, 11, 26, 0.95);
+  --bg-glass: rgba(28, 24, 54, 0.85);
+
+  --accent: #b44dff;
+  --accent-glow: rgba(180, 77, 255, 0.35);
+  --accent-bright: #d17fff;
+  --accent-secondary: #ff4daa;
+
+  --text-primary: #f0ecff;
+  --text-secondary: #9b93c0;
+  --text-muted: #6b6290;
+
+  --danger: #ff4466;
+  --danger-hover: #ff6685;
+
+  --border: rgba(180, 77, 255, 0.12);
+  --border-hover: rgba(180, 77, 255, 0.3);
+
+  /* Spacing */
+  --header-height: 60px;
+  --fab-size: 60px;
+  --grid-gap: 14px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Typography */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 30px var(--accent-glow);
+}
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* ========================================
+   Views
+   ======================================== */
+
+.view {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+}
+
+.view.active {
+  display: flex;
+}
+
+/* ========================================
+   Library - Header
+   ======================================== */
+
+.library-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: var(--header-height);
+  background: linear-gradient(180deg, var(--bg-primary) 60%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.logo h1 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-bright), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.header-stats {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ========================================
+   Library - Content
+   ======================================== */
+
+.library-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 16px 100px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+.empty-icon {
+  width: 100px;
+  height: 100px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.empty-state h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.btn-import-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  border: none;
+  border-radius: var(--radius-xl);
+  color: white;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-import-cta svg {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-import-cta:active {
+  transform: scale(0.95);
+}
+
+/* Manga Grid */
+.manga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--grid-gap);
+  animation: fadeInUp 0.4s ease;
+}
+
+.manga-card {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  animation: cardAppear 0.4s ease backwards;
+}
+
+.manga-card:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) {
+  .manga-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+.manga-cover-wrap {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.manga-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.manga-card:active .manga-cover {
+  transform: scale(1.05);
+}
+
+/* Progress bar on cover */
+.manga-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.manga-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+  border-radius: 0 2px 0 0;
+  transition: width 0.3s ease;
+}
+
+.manga-info {
+  padding: 10px;
+}
+
+.manga-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manga-pages {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* Delete button on card */
+.manga-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, background 0.2s;
+  z-index: 2;
+}
+
+.manga-card:active .manga-delete,
+.manga-card .manga-delete {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .manga-card .manga-delete {
+    opacity: 0;
+  }
+  .manga-card:hover .manga-delete {
+    opacity: 1;
+  }
+}
+
+.manga-delete:active {
+  background: var(--danger);
+  color: white;
+}
+
+.manga-delete svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ========================================
+   FAB (Floating Action Button)
+   ======================================== */
+
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 20px;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow), var(--shadow-md);
+  z-index: 20;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fabPulse 2s ease-in-out infinite;
+}
+
+.fab svg {
+  width: 26px;
+  height: 26px;
+}
+
+.fab:active {
+  transform: scale(0.9);
+  animation: none;
+}
+
+.fab.hidden {
+  display: none;
+}
+
+@keyframes fabPulse {
+  0%, 100% { box-shadow: var(--shadow-glow), var(--shadow-md); }
+  50% { box-shadow: 0 0 40px var(--accent-glow), var(--shadow-md); }
+}
+
+/* ========================================
+   Reader - Header
+   ======================================== */
+
+.reader-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 52px;
+  background: linear-gradient(180deg, var(--bg-overlay), transparent);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.reader-header.hidden {
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.reader-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.reader-btn:active {
+  background: var(--bg-card-hover);
+}
+
+.reader-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.reader-title {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reader-page-info {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ========================================
+   Reader - Canvas
+   ======================================== */
+
+.reader-canvas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.reader-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: opacity 0.15s ease;
+  will-change: transform;
+}
+
+.reader-image.loading {
+  opacity: 0.3;
+}
+
+.reader-image.zoomed {
+  max-width: none;
+  max-height: none;
+  cursor: grab;
+}
+
+.reader-image.dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+/* ========================================
+   Reader - Navigation Zones
+   ======================================== */
+
+.nav-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  z-index: 5;
+  cursor: pointer;
+}
+
+/* RTL: left zone = next page, right zone = prev page */
+.nav-zone-left {
+  left: 0;
+}
+
+.nav-zone-right {
+  right: 0;
+}
+
+/* Page turn flash effect */
+.nav-zone.flash {
+  background: radial-gradient(ellipse at center, rgba(180, 77, 255, 0.08), transparent);
+  animation: navFlash 0.3s ease;
+}
+
+@keyframes navFlash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ========================================
+   Reader - Footer / Slider
+   ======================================== */
+
+.reader-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, var(--bg-overlay), transparent);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.reader-footer.hidden {
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+.reader-page-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 28px;
+  text-align: center;
+}
+
+/* Custom range slider */
+.reader-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  direction: rtl; /* RTL slider for manga */
+}
+
+.reader-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  cursor: pointer;
+}
+
+.reader-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  cursor: pointer;
+  border: none;
+}
+
+/* ========================================
+   Loading Overlay
+   ======================================== */
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(12px);
+}
+
+.loading-overlay.active {
+  display: flex;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(180, 77, 255, 0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Delete Dialog
+   ======================================== */
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+.dialog-overlay.active {
+  display: flex;
+}
+
+.dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: dialogAppear 0.25s ease;
+}
+
+.dialog h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.dialog p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.dialog-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.dialog-btn:active {
+  transform: scale(0.95);
+}
+
+.dialog-cancel {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.dialog-confirm {
+  background: var(--danger);
+  color: white;
+}
+
+.dialog-confirm:active {
+  background: var(--danger-hover);
+}
+
+@keyframes dialogAppear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Staggered card animation */
+.manga-card:nth-child(1) { animation-delay: 0.03s; }
+.manga-card:nth-child(2) { animation-delay: 0.06s; }
+.manga-card:nth-child(3) { animation-delay: 0.09s; }
+.manga-card:nth-child(4) { animation-delay: 0.12s; }
+.manga-card:nth-child(5) { animation-delay: 0.15s; }
+.manga-card:nth-child(6) { animation-delay: 0.18s; }
+.manga-card:nth-child(7) { animation-delay: 0.21s; }
+.manga-card:nth-child(8) { animation-delay: 0.24s; }
+.manga-card:nth-child(9) { animation-delay: 0.27s; }
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+
+.library-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.library-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.library-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* ========================================
+   Safe area padding for notched phones
+   ======================================== */
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .library-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(var(--header-height) + env(safe-area-inset-top));
+  }
+
+  .reader-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(52px + env(safe-area-inset-top));
+  }
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1333">
+  <meta name="description" content="MangaReader - Lettore manga offline per Android">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MangaReader</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== LIBRARY VIEW ==================== -->
+  <div id="library-view" class="view active">
+    <header class="library-header">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" class="logo-icon" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <h1>MangaReader</h1>
+      </div>
+      <div class="header-stats" id="header-stats"></div>
+    </header>
+
+    <div class="library-content">
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="10" y="5" width="25" height="35" rx="3" opacity="0.3"/>
+            <rect x="28" y="10" width="25" height="35" rx="3" opacity="0.5"/>
+            <rect x="45" y="5" width="25" height="35" rx="3" opacity="0.3"/>
+            <circle cx="40" cy="60" r="12" stroke-width="2.5" opacity="0.6"/>
+            <line x1="40" y1="53" x2="40" y2="67" stroke-width="2.5" opacity="0.6"/>
+            <line x1="33" y1="60" x2="47" y2="60" stroke-width="2.5" opacity="0.6"/>
+          </svg>
+        </div>
+        <h2>La tua libreria è vuota</h2>
+        <p>Importa i tuoi manga in formato CBZ, ZIP o PDF</p>
+        <button class="btn-import-cta" id="btn-import-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Importa Manga
+        </button>
+      </div>
+
+      <!-- Manga Grid -->
+      <div id="manga-grid" class="manga-grid"></div>
+    </div>
+
+    <!-- FAB Import Button -->
+    <button class="fab" id="btn-import-fab" title="Importa manga">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Hidden file input -->
+    <input type="file" id="file-input" accept=".cbz,.zip,.pdf" multiple hidden>
+  </div>
+
+  <!-- ==================== READER VIEW ==================== -->
+  <div id="reader-view" class="view">
+    <!-- Top bar (tap to toggle) -->
+    <header class="reader-header" id="reader-header">
+      <button class="reader-btn back-btn" id="btn-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div class="reader-title" id="reader-title">Manga Title</div>
+      <div class="reader-page-info" id="reader-page-info">1/20</div>
+    </header>
+
+    <!-- Page container -->
+    <div class="reader-canvas" id="reader-canvas">
+      <img id="reader-image" class="reader-image" alt="Manga page" draggable="false">
+    </div>
+
+    <!-- Navigation zones (invisible) -->
+    <div class="nav-zone nav-zone-left" id="nav-prev"></div>
+    <div class="nav-zone nav-zone-right" id="nav-next"></div>
+
+    <!-- Bottom bar -->
+    <footer class="reader-footer" id="reader-footer">
+      <span class="reader-page-label" id="page-label-current">1</span>
+      <input type="range" class="reader-slider" id="reader-slider" min="1" max="1" value="1">
+      <span class="reader-page-label" id="page-label-total">1</span>
+    </footer>
+  </div>
+
+  <!-- ==================== LOADING OVERLAY ==================== -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text" id="loading-text">Importazione in corso...</p>
+  </div>
+
+  <!-- ==================== DELETE CONFIRM DIALOG ==================== -->
+  <div id="delete-dialog" class="dialog-overlay">
+    <div class="dialog">
+      <h3>Elimina manga</h3>
+      <p id="delete-dialog-text">Sei sicuro di voler eliminare questo manga?</p>
+      <div class="dialog-actions">
+        <button class="dialog-btn dialog-cancel" id="delete-cancel">Annulla</button>
+        <button class="dialog-btn dialog-confirm" id="delete-confirm">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
