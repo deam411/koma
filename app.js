@@ -668,7 +668,37 @@ async function preloadPages(pages, startFrom) {
     }
 }
 
-async function goToPage(index) {
+async function goToPage(index, direction = 0) {
+    if (index < 0 || index >= totalPages) return;
+
+    if (!document.startViewTransition) {
+        await _updatePageDOM(index);
+    } else {
+        // Handle slide direction for RTL layout
+        // direction > 0 means Next page (which slides from left to right)
+        // direction < 0 means Prev page (which slides from right to left)
+        if (direction > 0) { 
+            document.documentElement.classList.add('slide-next');
+            document.documentElement.classList.remove('slide-prev');
+        } else if (direction < 0) {
+            document.documentElement.classList.add('slide-prev');
+            document.documentElement.classList.remove('slide-next');
+        } else {
+            document.documentElement.classList.remove('slide-prev', 'slide-next');
+        }
+        
+        const transition = document.startViewTransition(async () => {
+            await _updatePageDOM(index);
+        });
+        
+        // Clean up classes after transition
+        transition.finished.finally(() => {
+            document.documentElement.classList.remove('slide-prev', 'slide-next');
+        });
+    }
+}
+
+async function _updatePageDOM(index) {
     if (index < 0 || index >= totalPages) return;
 
     currentPageIndex = index;
@@ -686,10 +716,21 @@ async function goToPage(index) {
     }
 
     if (url) {
-        readerImage.src = url;
-        readerImage.onload = () => {
+        if (readerImage.src !== url) {
+            await new Promise(resolve => {
+                readerImage.onload = () => {
+                    readerImage.classList.remove('loading');
+                    resolve();
+                };
+                readerImage.onerror = () => {
+                    readerImage.classList.remove('loading');
+                    resolve(); // resolve anyway to avoid stuck UI
+                };
+                readerImage.src = url;
+            });
+        } else {
             readerImage.classList.remove('loading');
-        };
+        }
     }
 
     // Update UI
@@ -715,7 +756,7 @@ function navigatePage(direction) {
         zone.classList.add('flash');
         setTimeout(() => zone.classList.remove('flash'), 300);
 
-        goToPage(newIndex);
+        goToPage(newIndex, direction);
     }
 }
 

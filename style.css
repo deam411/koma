@@ -509,6 +509,58 @@ html, body {
 }
 
 /* ========================================
+   View Transitions (Page Slide)
+   ======================================== */
+.reader-image {
+  view-transition-name: manga-page;
+}
+
+::view-transition-group(manga-page) {
+  animation-duration: 0.25s; /* "abbastanza veloce" */
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+::view-transition-old(manga-page),
+::view-transition-new(manga-page) {
+  animation-duration: 0.25s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  mix-blend-mode: normal;
+}
+
+/* Direction: Next (Right to Left in LTR, but in manga we read RTL, so "Next" comes from LEFT) */
+html.slide-next ::view-transition-old(manga-page) {
+  animation-name: slide-out-right;
+}
+html.slide-next ::view-transition-new(manga-page) {
+  animation-name: slide-in-left;
+}
+
+/* Direction: Prev (New page comes from RIGHT) */
+html.slide-prev ::view-transition-old(manga-page) {
+  animation-name: slide-out-left;
+}
+html.slide-prev ::view-transition-new(manga-page) {
+  animation-name: slide-in-right;
+}
+
+@keyframes slide-out-right {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========================================
    Reader - Navigation Zones
    ======================================== */
 
