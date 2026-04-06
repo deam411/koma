@@ -528,18 +528,18 @@ html, body {
 }
 
 /* Direction: Next (Right to Left in LTR, but in manga we read RTL, so "Next" comes from LEFT) */
-html.slide-next ::view-transition-old(manga-page) {
+html.slide-next::view-transition-old(manga-page) {
   animation-name: slide-out-right;
 }
-html.slide-next ::view-transition-new(manga-page) {
+html.slide-next::view-transition-new(manga-page) {
   animation-name: slide-in-left;
 }
 
 /* Direction: Prev (New page comes from RIGHT) */
-html.slide-prev ::view-transition-old(manga-page) {
+html.slide-prev::view-transition-old(manga-page) {
   animation-name: slide-out-left;
 }
-html.slide-prev ::view-transition-new(manga-page) {
+html.slide-prev::view-transition-new(manga-page) {
   animation-name: slide-in-right;
 }
 
