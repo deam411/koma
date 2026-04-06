@@ -1,5 +1,5 @@
-const CACHE_NAME = 'koma-v7';
-const BASE = '/koma/';
+const CACHE_NAME = 'koma-v8';
+const BASE = './';
 const STATIC_ASSETS = [
   BASE,
   BASE + 'index.html',
