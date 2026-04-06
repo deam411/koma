@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mangareader-v5';
+const CACHE_NAME = 'mangareader-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

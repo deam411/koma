@@ -130,6 +130,35 @@ html, body {
   font-weight: 500;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-install {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  border: none;
+  border-radius: var(--radius-xl);
+  color: white;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 16px var(--accent-glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fabPulse 2s ease-in-out infinite;
+}
+
+.btn-install:active {
+  transform: scale(0.93);
+  animation: none;
+}
+
 /* ========================================
    Library - Content
    ======================================== */

@@ -1,6 +1,6 @@
 {
-  "name": "MangaReader",
-  "short_name": "MangaReader",
+  "name": "Koma - Lettore Manga",
+  "short_name": "Koma",
   "description": "Lettore manga offline con libreria e lettura RTL",
   "start_url": "/index.html",
   "display": "fullscreen",
