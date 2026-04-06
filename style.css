@@ -516,14 +516,14 @@ html, body {
 }
 
 ::view-transition-group(manga-page) {
-  animation-duration: 0.25s; /* "abbastanza veloce" */
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  animation-duration: 0.4s;
+  animation-timing-function: ease-out;
 }
 
 ::view-transition-old(manga-page),
 ::view-transition-new(manga-page) {
-  animation-duration: 0.25s;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  animation-duration: 0.4s;
+  animation-timing-function: ease-out;
   mix-blend-mode: normal;
 }
 
