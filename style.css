@@ -511,53 +511,51 @@ html, body {
 /* ========================================
    View Transitions (Page Slide)
    ======================================== */
-.reader-image {
-  view-transition-name: manga-page;
-}
-
-::view-transition-group(manga-page) {
+::view-transition-group(root) {
   animation-duration: 0.4s;
-  animation-timing-function: ease-out;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-::view-transition-old(manga-page),
-::view-transition-new(manga-page) {
-  animation-duration: 0.4s;
-  animation-timing-function: ease-out;
-  mix-blend-mode: normal;
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal !important;
 }
 
-/* Direction: Next (Right to Left in LTR, but in manga we read RTL, so "Next" comes from LEFT) */
-html.slide-next::view-transition-old(manga-page) {
-  animation-name: slide-out-right;
+/* Direction: Next (Right to Left sliding) */
+:root.slide-next::view-transition-old(root) {
+  animation: slide-out-right 0.4s cubic-bezier(0.25, 1, 0.5, 1) both !important;
+  z-index: 1;
 }
-html.slide-next::view-transition-new(manga-page) {
-  animation-name: slide-in-left;
+:root.slide-next::view-transition-new(root) {
+  animation: slide-in-left 0.4s cubic-bezier(0.25, 1, 0.5, 1) both !important;
+  z-index: 2;
 }
 
-/* Direction: Prev (New page comes from RIGHT) */
-html.slide-prev::view-transition-old(manga-page) {
-  animation-name: slide-out-left;
+/* Direction: Prev (Left to Right sliding) */
+:root.slide-prev::view-transition-old(root) {
+  animation: slide-out-left 0.4s cubic-bezier(0.25, 1, 0.5, 1) both !important;
+  z-index: 1;
 }
-html.slide-prev::view-transition-new(manga-page) {
-  animation-name: slide-in-right;
+:root.slide-prev::view-transition-new(root) {
+  animation: slide-in-right 0.4s cubic-bezier(0.25, 1, 0.5, 1) both !important;
+  z-index: 2;
 }
 
 @keyframes slide-out-right {
   from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(50%); opacity: 0; }
 }
 @keyframes slide-in-left {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(-100%); opacity: 1; box-shadow: 10px 0 25px rgba(0,0,0,0.5); }
+  to { transform: translateX(0); opacity: 1; box-shadow: 0 0 0 rgba(0,0,0,0); }
 }
 @keyframes slide-out-left {
   from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(-50%); opacity: 0; }
 }
 @keyframes slide-in-right {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(100%); opacity: 1; box-shadow: -10px 0 25px rgba(0,0,0,0.5); }
+  to { transform: translateX(0); opacity: 1; box-shadow: 0 0 0 rgba(0,0,0,0); }
 }
 
 /* ========================================

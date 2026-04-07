@@ -300,8 +300,11 @@ async function handleFileImport(e) {
 
         try {
             const isPDF = file.name.toLowerCase().endsWith('.pdf');
+            const isEPUB = file.name.toLowerCase().endsWith('.epub');
             if (isPDF) {
                 await importPDF(file);
+            } else if (isEPUB) {
+                await importEPUB(file);
             } else {
                 await importCBZ(file);
             }
@@ -361,6 +364,11 @@ async function importCBZ(file) {
 
         // Update progress
         loadingText.textContent = `Estrazione pagine: ${i + 1}/${imageFiles.length}`;
+
+        // Yield to main thread to unblock UI
+        if (i % 2 === 0) {
+            await new Promise(r => setTimeout(r, 0));
+        }
     }
 
     // Create cover thumbnail
@@ -370,6 +378,170 @@ async function importCBZ(file) {
     }
 
     // Save manga metadata
+    const manga = {
+        id: mangaId,
+        title: title,
+        pageCount: imageFiles.length,
+        currentPage: 0,
+        coverData: coverData,
+        addedAt: Date.now(),
+        lastReadAt: null
+    };
+
+    await db.addManga(manga);
+}
+
+// Helper to resolve relative paths
+function resolvePath(basePath, relativePath) {
+    const stack = basePath ? basePath.split('/') : [];
+    // remove current file name from base path
+    if (stack.length > 0 && !basePath.endsWith('/')) {
+        stack.pop();
+    }
+    const parts = relativePath.split('/');
+    for (const part of parts) {
+        if (part === '.') continue;
+        if (part === '..') stack.pop();
+        else stack.push(part);
+    }
+    return stack.join('/');
+}
+
+// Advanced EPUB Import
+async function importEPUB(file) {
+    const zip = await JSZip.loadAsync(file);
+    let imageFiles = [];
+
+    const mangaId = 'manga_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    const title = file.name.replace(/\.epub$/i, '');
+
+    try {
+        // 1. Locate container.xml to find OPF file
+        const containerXmlFile = zip.file("META-INF/container.xml");
+        if (!containerXmlFile) throw new Error("File container.xml mancante; l'EPUB potrebbe essere corrotto.");
+        const containerXml = await containerXmlFile.async("string");
+
+        const parser = new DOMParser();
+        const containerDoc = parser.parseFromString(containerXml, "application/xml");
+        const rootfilePath = containerDoc.querySelector("rootfile")?.getAttribute("full-path");
+        if (!rootfilePath) throw new Error("Path del rootfile (OPF) non trovato.");
+
+        // 2. Read OPF file
+        const opfFile = zip.file(rootfilePath);
+        if (!opfFile) throw new Error("File OPF non trovato nell'archivio ZIP dell'EPUB.");
+        const opfXml = await opfFile.async("string");
+        const opfDoc = parser.parseFromString(opfXml, "application/xml");
+
+        // 3. Extract Manifest and Spine
+        const manifest = {};
+        opfDoc.querySelectorAll("manifest > item").forEach(item => {
+            manifest[item.getAttribute("id")] = item.getAttribute("href");
+        });
+
+        const spineIds = [];
+        opfDoc.querySelectorAll("spine > itemref").forEach(itemref => {
+            spineIds.push(itemref.getAttribute("idref"));
+        });
+
+        // 4. Follow the spine to collect images
+        for (const id of spineIds) {
+            const relativeHref = manifest[id];
+            if (!relativeHref) continue;
+
+            const chapterPath = resolvePath(rootfilePath, relativeHref);
+            const chapterEntry = zip.file(chapterPath);
+            if (!chapterEntry) continue;
+
+            const chapterContent = await chapterEntry.async("string");
+            
+            // Check if spine item itself is an image
+            if (isImageFile(chapterPath)) {
+                 imageFiles.push({ path: chapterPath, entry: chapterEntry });
+                 continue;
+            }
+
+            // Otherwise, it's HTML/XHTML. Find all images inside.
+            const chapterDoc = parser.parseFromString(chapterContent, "text/html");
+            const images = chapterDoc.querySelectorAll("img, image");
+            
+            for (const img of images) {
+                const src = img.getAttribute("src") || img.getAttribute("href") || img.getAttribute("xlink:href");
+                if (src) {
+                    const imgPath = resolvePath(chapterPath, src);
+                    // Remove url hash if present
+                    const cleanPath = imgPath.split('#')[0].split('?')[0]; 
+                    const imgEntry = zip.file(cleanPath);
+                    if (imgEntry && isImageFile(cleanPath)) {
+                        imageFiles.push({ path: cleanPath, entry: imgEntry });
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Lettura spine EPUB fallita, fallback su estrazione immagini raw:", e);
+        imageFiles = [];
+    }
+
+    // Fallback: If no images found through spine parsing, just dump all images and sort alphabetically
+    if (imageFiles.length === 0) {
+        zip.forEach((path, entry) => {
+            if (!entry.dir && isImageFile(path)) {
+                imageFiles.push({ path, entry });
+            }
+        });
+        imageFiles.sort((a, b) => naturalSort(a.path, b.path));
+    }
+
+    if (imageFiles.length === 0) {
+        throw new Error('Nessuna immagine trovata nel file EPUB.');
+    }
+
+    // Deduplicate images (sometimes same image is referenced multiple times in bad EPUBs)
+    const uniqueFiles = [];
+    const seenPaths = new Set();
+    for (const f of imageFiles) {
+        if (!seenPaths.has(f.path)) {
+            seenPaths.add(f.path);
+            uniqueFiles.push(f);
+        }
+    }
+    imageFiles = uniqueFiles;
+
+    // Extract and store pages
+    let coverBlob = null;
+    for (let i = 0; i < imageFiles.length; i++) {
+        const { path, entry } = imageFiles[i];
+        const blob = await entry.async('blob');
+        const mimeType = getMimeType(path);
+        const typedBlob = new Blob([blob], { type: mimeType });
+
+        const pageData = {
+            id: `${mangaId}_page_${i}`,
+            mangaId: mangaId,
+            pageIndex: i,
+            blob: typedBlob,
+            filename: path
+        };
+
+        await db.addPage(pageData);
+
+        if (i === 0) {
+            coverBlob = typedBlob;
+        }
+
+        loadingText.textContent = `Estrazione ePub: ${i + 1}/${imageFiles.length}`;
+        
+        // Yield to main thread to unblock UI
+        if (i % 2 === 0) {
+            await new Promise(r => setTimeout(r, 0));
+        }
+    }
+
+    let coverData = null;
+    if (coverBlob) {
+        coverData = await createThumbnail(coverBlob, 300, 450);
+    }
+
     const manga = {
         id: mangaId,
         title: title,

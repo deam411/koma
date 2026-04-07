@@ -1,4 +1,4 @@
-const CACHE_NAME = 'koma-v12';
+const CACHE_NAME = 'koma-v14';
 const BASE = '/koma/';
 const STATIC_ASSETS = [
   BASE,
